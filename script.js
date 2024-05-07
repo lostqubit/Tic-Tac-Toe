@@ -1,12 +1,16 @@
 const game = (function(){
-    let gameBoard = [];
+    let gameBoard = [
+        ["","",""],
+        ["","",""],
+        ["","",""],
+    ];
     const player1Move = "X";
     const player2Move = "O";
     let currentMove = player1Move;
     let gameEndFlag = true;
     let moves = 0;
 
-    const init = () => {
+    const reset = () => {
         gameBoard = [
             ["","",""],
             ["","",""],
@@ -15,10 +19,15 @@ const game = (function(){
         gameEndFlag = false;
         currentMove = player1Move;
         moves = 0;
+        display.reset();
+    };
+
+    const init = () => {
+        display.init();
+        reset();
     };
 
     const checkGameEnd = () => {
-        if(moves===9) return 0;
         let mainDiagonalStart = gameBoard[0][0];
         let mainDiagonalMatch = 1;
         for(let i=0;i<3;i++){
@@ -50,13 +59,16 @@ const game = (function(){
             if(gameBoard[0][2]==="X") return 1;
             else if(gameBoard[0][2]==="O") return 2;
         }
+
+        if(moves===9) return 0;
     };
 
     const playRound = (move) => {
         const row = Math.floor(move/3);
-        const col = move%3;
+        const col = (move)%3;
 
         if(!gameEndFlag && gameBoard[row][col]===""){
+            display.renderMove(move,currentMove);
             gameBoard[row][col] = currentMove;
             moves++;
 
@@ -65,27 +77,50 @@ const game = (function(){
 
             const status = checkGameEnd();
 
-            if(status===1){
-                gameEndFlag=true;
-                console.log("Player 1 wins!");
-            }
-            else if(status === 2){
+            if(status===0 || status===1 || status===2){
                 gameEndFlag = true;
-                console.log("Player 2 wins!");
+                display.renderResult(status);
             }
-            else if(status===0){
-                gameEndFlag=true;
-                console.log("Tie!");
-            }
-            
-            console.log(gameBoard);
         }
     };
 
-    return {init,playRound};
+    return {init,reset,playRound};
 })();
-
 
 const display = (function(){
+    const grid = document.querySelectorAll(".grid div");
+    const overlay = document.querySelector(".overlay");
+    const resultSection = document.querySelector(".overlay h2");
+
+    const init = () => {
+        for(let cell of grid){
+            cell.addEventListener("click",(event)=>{
+                const move = parseInt(event.target.id.split("-")[1])-1;
+                game.playRound(move);
+            });
+        }
+    };
     
+    const reset = () => {
+        for(let cell of grid){
+            cell.textContent = "";
+        }
+    };
+
+    const renderMove = (cellId,move) => {
+        grid[cellId].textContent = move;
+    }
+
+    const renderResult = (status) => {
+        if(status===0){
+            resultSection.textContent = "Tie!"
+        }
+        else resultSection.textContent = `Player-${status} Wins!`;
+
+        overlay.style.display = "flex";
+    }
+
+    return {init, reset, renderMove, renderResult};
 })();
+
+game.init();
