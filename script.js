@@ -1,3 +1,21 @@
+const players = (function(){
+    let player1 = "Player-1";
+    let player2 = "Player-2";
+
+    const setNames =(name1,name2) => {
+        if(name1!=="") player1 = name1;
+        else player1 = "Player-1";
+        if(name2!=="") player2 = name2;
+        else player2 = "Player-2";
+    };
+
+    const getNames = () => {
+        return [player1,player2];
+    };
+
+    return {setNames,getNames};
+})();
+
 const game = (function(){
     let gameBoard = [
         ["","",""],
@@ -16,15 +34,20 @@ const game = (function(){
             ["","",""],
             ["","",""],
         ];
-        gameEndFlag = false;
+        gameEndFlag = true;
         currentMove = player1Move;
         moves = 0;
         display.reset();
     };
 
+    const startGame = () => {
+        gameEndFlag = false;
+    }
+
     const init = () => {
         display.init();
         reset();
+        startGame();
     };
 
     const checkGameEnd = () => {
@@ -84,13 +107,50 @@ const game = (function(){
         }
     };
 
-    return {init,reset,playRound};
+    return {init,reset,startGame, playRound};
 })();
 
 const display = (function(){
     const grid = document.querySelectorAll(".grid div");
     const overlay = document.querySelector(".overlay");
     const resultSection = document.querySelector(".overlay h2");
+    const playAgainButton = document.querySelector(".overlay button");
+
+    let initFlag = false;
+    
+    const startButton = document.querySelector(".container button");
+    const nameForm = document.querySelector("form");
+    const p1Name = document.querySelector("#player-1");
+    const p2Name = document.querySelector("#player-2");
+    nameForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        if(startButton.textContent === "Start") {
+            const data = new FormData(event.target);
+            players.setNames(data.get("player-1"),data.get("player-2"));
+            const names = players.getNames();
+            p1Name.value = names[0];
+            p2Name.value = names[1];
+            p1Name.readOnly = true;
+            p2Name.readOnly = true;
+            p1Name.style.opacity = 0.5;
+            p2Name.style.opacity = 0.5;
+            if(initFlag===false) game.init();
+            else{
+                game.reset();
+                game.startGame();
+            }
+            initFlag = true;
+            startButton.textContent = "Clear";
+        }
+        else{
+            p1Name.readOnly = false;
+            p2Name.readOnly = false;
+            p1Name.style.opacity = 1;
+            p2Name.style.opacity = 1;
+            game.reset();
+            startButton.textContent = "Start";
+        }
+    });
 
     const init = () => {
         for(let cell of grid){
@@ -99,6 +159,21 @@ const display = (function(){
                 game.playRound(move);
             });
         }
+
+        overlay.addEventListener("click",() => {
+            overlay.style.display = "none";
+        })
+
+        playAgainButton.addEventListener("click",(event)=>{
+            event.stopPropagation();
+            overlay.style.display = "none";
+            game.reset();
+            startButton.textContent = "Start";
+            p1Name.readOnly = false;
+            p2Name.readOnly = false;
+            p1Name.style.opacity = 1;
+            p2Name.style.opacity = 1;
+        });
     };
     
     const reset = () => {
@@ -112,10 +187,12 @@ const display = (function(){
     }
 
     const renderResult = (status) => {
+        const playerNames = players.getNames();
         if(status===0){
             resultSection.textContent = "Tie!"
         }
-        else resultSection.textContent = `Player-${status} Wins!`;
+        else if(status == 1) resultSection.textContent = `${playerNames[0]} Wins!`;
+        else resultSection.textContent = `${playerNames[1]} Wins!`;
 
         overlay.style.display = "flex";
     }
@@ -123,4 +200,3 @@ const display = (function(){
     return {init, reset, renderMove, renderResult};
 })();
 
-game.init();

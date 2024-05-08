@@ -10,6 +10,16 @@
 <body>
     <h2>Tic-Tac-Toe!</h2>
     <div class="container">
+        <form id="pnames">
+            <div>
+                <label for="player-1">Player-1</label>
+                <input type="text" id="player-1" name="player-1" maxlength="20">
+            </div>
+            <div>
+                <label for="player-1">Player-2</label>
+                <input type="text" id="player-2" name="player-2" maxlength="20">
+            </div>
+        </form>
         <div class="grid">
             <div id="cell-1" >
 
@@ -39,6 +49,7 @@
                 
             </div>
         </div>
+        <button form="pnames">Start</button>
     </div>
     <div class="overlay">
         <h2></h2>
