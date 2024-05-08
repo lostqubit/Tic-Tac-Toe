@@ -1,6 +1,6 @@
 # Tic-Tac-Toe
 
-Interactive browser game based on the popular "Tic-Tac-Toe" game. Built with JavaScript and various components of game created and managed with Factory Functions and Module Pattern.
+Interactive browser game based on the popular "Tic-Tac-Toe" game. Built with JavaScript with various components of game created and managed entirely with Factory Functions and Module Pattern.
 
 live demo: https://lostqubit.github.io/Tic-Tac-Toe/
 
